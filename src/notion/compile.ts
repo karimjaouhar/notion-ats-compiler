@@ -8,16 +8,20 @@ import type {
   ListItem,
   ListNode,
   ParagraphNode,
-  QuoteNode
+  QuoteNode,
+  AdmonitionNode,
+  ToggleNode
 } from "../ast/types.js";
 import { toPlainText, type RichTextSpan } from "../ast/text.js";
 import { slugify } from "../utils/ids.js";
 import { createUniqueIdFn } from "../utils/unique-ids.js";
 import type { NotionBlock, NotionRichText } from "./types.js";
 import { notionRichTextToSpans } from "./rich-text.js";
+import type { CompileWarning } from "./warnings.js";
 
 export type CompileOptions = {
   meta?: Article["meta"];
+  onWarning?: (warning: CompileWarning) => void;
 };
 
 export function compileBlocksToArticle(blocks: NotionBlock[], opts: CompileOptions = {}): Article {
@@ -26,11 +30,15 @@ export function compileBlocksToArticle(blocks: NotionBlock[], opts: CompileOptio
   return {
     type: "article",
     meta: opts.meta ?? {},
-    body: compileBlocks(blocks, nextHeadingId)
+    body: compileBlocks(blocks, nextHeadingId, opts.onWarning)
   };
 }
 
-function compileBlocks(blocks: NotionBlock[], nextHeadingId: (base: string) => string): ArticleNode[] {
+function compileBlocks(
+  blocks: NotionBlock[],
+  nextHeadingId: (base: string) => string,
+  onWarning?: (warning: CompileWarning) => void
+): ArticleNode[] {
   const body: ArticleNode[] = [];
 
   for (let i = 0; i < blocks.length; i += 1) {
@@ -48,7 +56,7 @@ function compileBlocks(blocks: NotionBlock[], nextHeadingId: (base: string) => s
         if (plain.length > 0) {
           itemChildren.push({ type: "paragraph", text });
         }
-        const nested = compileBlocks(getChildren(itemBlock), nextHeadingId);
+        const nested = compileBlocks(getChildren(itemBlock), nextHeadingId, onWarning);
         itemChildren.push(...nested);
         items.push({ children: itemChildren });
         i += 1;
@@ -104,7 +112,15 @@ function compileBlocks(blocks: NotionBlock[], nextHeadingId: (base: string) => s
       const image = b.image;
       const src =
         image?.type === "file" ? image.file?.url : image?.type === "external" ? image.external?.url : undefined;
-      if (!src) continue;
+      if (!src) {
+        onWarning?.({
+          code: "MISSING_IMAGE_URL",
+          message: "Image block is missing a file or external URL.",
+          blockId: b.id,
+          blockType: b.type
+        });
+        continue;
+      }
       const caption = getOptionalCaption(image?.caption);
       const node: ImageNode = {
         type: "image",
@@ -128,7 +144,7 @@ function compileBlocks(blocks: NotionBlock[], nextHeadingId: (base: string) => s
       if (plain.length > 0) {
         children.push({ type: "paragraph", text });
       }
-      const nested = compileBlocks(getChildren(b), nextHeadingId);
+      const nested = compileBlocks(getChildren(b), nextHeadingId, onWarning);
       children.push(...nested);
       if (children.length === 0) continue;
       const node: QuoteNode = { type: "quote", children };
@@ -136,8 +152,46 @@ function compileBlocks(blocks: NotionBlock[], nextHeadingId: (base: string) => s
       continue;
     }
 
+    if (b.type === "toggle") {
+      const summary = notionRichTextToSpans(getRichText(b, "toggle"));
+      const summaryPlain = toPlainText(summary).trim();
+      if (summaryPlain.length === 0) {
+        onWarning?.({
+          code: "EMPTY_TOGGLE",
+          message: "Toggle summary is empty; block was dropped.",
+          blockId: b.id,
+          blockType: b.type
+        });
+        continue;
+      }
+      const children = compileBlocks(getChildren(b), nextHeadingId, onWarning);
+      const node: ToggleNode = { type: "toggle", summary, children };
+      body.push(node);
+      continue;
+    }
+
+    if (b.type === "callout") {
+      const title = notionRichTextToSpans(getRichText(b, "callout"));
+      const titlePlain = toPlainText(title).trim();
+      const children = compileBlocks(getChildren(b), nextHeadingId, onWarning);
+      const kind = mapCalloutKind(b.callout?.color);
+      const node: AdmonitionNode = {
+        type: "admonition",
+        kind,
+        ...(titlePlain.length > 0 ? { title } : {}),
+        children
+      };
+      body.push(node);
+      continue;
+    }
+
     // v0: ignore unknown blocks.
-    void b;
+    onWarning?.({
+      code: "UNSUPPORTED_BLOCK",
+      message: "Block type is not supported and was ignored.",
+      blockId: b.id,
+      blockType: b.type
+    });
   }
 
   return body;
@@ -162,4 +216,22 @@ function getChildren(block: NotionBlock): NotionBlock[] {
 
 function isListItemType(type: string): type is "bulleted_list_item" | "numbered_list_item" {
   return type === "bulleted_list_item" || type === "numbered_list_item";
+}
+
+function mapCalloutKind(color: string | undefined): AdmonitionNode["kind"] {
+  switch (color) {
+    case "yellow":
+    case "orange":
+    case "red":
+      return "warning";
+    case "blue":
+    case "purple":
+      return "info";
+    case "green":
+      return "tip";
+    case "gray":
+    case "default":
+    default:
+      return "note";
+  }
 }

@@ -3,6 +3,7 @@ import { compileBlocksToArticle } from "../src/notion/compile.js";
 import simpleFixture from "./fixtures/simple-page.json";
 import leafFixture from "./fixtures/leaf-blocks.json";
 import listFixture from "./fixtures/list-blocks.json";
+import toggleFixture from "./fixtures/toggle-callout.json";
 
 describe("compileBlocksToArticle", () => {
   it("compiles headings, paragraphs, and rich text spans", () => {
@@ -140,5 +141,54 @@ describe("compileBlocksToArticle", () => {
         ]
       }
     ]);
+  });
+
+  it("compiles toggles and callouts with warnings", () => {
+    const warnings: string[] = [];
+    const article = compileBlocksToArticle(toggleFixture as any, {
+      onWarning: (warning) => warnings.push(warning.code)
+    });
+
+    expect(article.body).toEqual([
+      {
+        type: "toggle",
+        summary: [{ type: "text", text: "Toggle summary" }],
+        children: [
+          { type: "paragraph", text: [{ type: "text", text: "Inside toggle" }] },
+          {
+            type: "toggle",
+            summary: [{ type: "text", text: "Nested toggle" }],
+            children: [{ type: "paragraph", text: [{ type: "text", text: "Nested content" }] }]
+          }
+        ]
+      },
+      {
+        type: "admonition",
+        kind: "warning",
+        title: [{ type: "text", text: "Warning callout" }],
+        children: [
+          { type: "paragraph", text: [{ type: "text", text: "Pay attention" }] },
+          {
+            type: "list",
+            ordered: false,
+            items: [{ children: [{ type: "paragraph", text: [{ type: "text", text: "Item" }] }] }]
+          }
+        ]
+      },
+      {
+        type: "admonition",
+        kind: "info",
+        title: [{ type: "text", text: "Info callout" }],
+        children: []
+      },
+      {
+        type: "admonition",
+        kind: "tip",
+        title: [{ type: "text", text: "Tip callout" }],
+        children: []
+      }
+    ]);
+
+    expect(warnings).toEqual(["EMPTY_TOGGLE", "UNSUPPORTED_BLOCK"]);
   });
 });

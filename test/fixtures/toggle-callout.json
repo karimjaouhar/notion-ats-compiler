@@ -1,0 +1,117 @@
+[
+  {
+    "id": "t1",
+    "type": "toggle",
+    "has_children": true,
+    "toggle": {
+      "rich_text": [
+        { "plain_text": "Toggle summary", "href": null, "annotations": { "bold": false, "italic": false, "code": false } }
+      ]
+    },
+    "children": [
+      {
+        "id": "t1-1",
+        "type": "paragraph",
+        "has_children": false,
+        "paragraph": {
+          "rich_text": [
+            { "plain_text": "Inside toggle", "href": null, "annotations": { "bold": false, "italic": false, "code": false } }
+          ]
+        }
+      },
+      {
+        "id": "t1-2",
+        "type": "toggle",
+        "has_children": true,
+        "toggle": {
+          "rich_text": [
+            { "plain_text": "Nested toggle", "href": null, "annotations": { "bold": false, "italic": false, "code": false } }
+          ]
+        },
+        "children": [
+          {
+            "id": "t1-2-1",
+            "type": "paragraph",
+            "has_children": false,
+            "paragraph": {
+              "rich_text": [
+                { "plain_text": "Nested content", "href": null, "annotations": { "bold": false, "italic": false, "code": false } }
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "t2",
+    "type": "toggle",
+    "has_children": false,
+    "toggle": {
+      "rich_text": [
+        { "plain_text": "   ", "href": null, "annotations": { "bold": false, "italic": false, "code": false } }
+      ]
+    }
+  },
+  {
+    "id": "c1",
+    "type": "callout",
+    "has_children": true,
+    "callout": {
+      "color": "yellow",
+      "rich_text": [
+        { "plain_text": "Warning callout", "href": null, "annotations": { "bold": false, "italic": false, "code": false } }
+      ]
+    },
+    "children": [
+      {
+        "id": "c1-1",
+        "type": "paragraph",
+        "has_children": false,
+        "paragraph": {
+          "rich_text": [
+            { "plain_text": "Pay attention", "href": null, "annotations": { "bold": false, "italic": false, "code": false } }
+          ]
+        }
+      },
+      {
+        "id": "c1-2",
+        "type": "bulleted_list_item",
+        "has_children": false,
+        "bulleted_list_item": {
+          "rich_text": [
+            { "plain_text": "Item", "href": null, "annotations": { "bold": false, "italic": false, "code": false } }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "c2",
+    "type": "callout",
+    "has_children": false,
+    "callout": {
+      "color": "blue",
+      "rich_text": [
+        { "plain_text": "Info callout", "href": null, "annotations": { "bold": false, "italic": false, "code": false } }
+      ]
+    }
+  },
+  {
+    "id": "c3",
+    "type": "callout",
+    "has_children": false,
+    "callout": {
+      "color": "green",
+      "rich_text": [
+        { "plain_text": "Tip callout", "href": null, "annotations": { "bold": false, "italic": false, "code": false } }
+      ]
+    }
+  },
+  {
+    "id": "u1",
+    "type": "unsupported_type",
+    "has_children": false,
+    "unsupported_type": {}
+  }
+]
