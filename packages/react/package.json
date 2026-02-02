@@ -17,7 +17,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "echo 'No tests specified'",
-    "lint": "echo 'No lint specified'",
+    "lint": "eslint . || echo \"No lint specified\"",
     "check": "pnpm lint && pnpm test && pnpm build"
   },
   "devDependencies": {
