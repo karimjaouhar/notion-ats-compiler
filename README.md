@@ -5,6 +5,13 @@ Compile Notion page blocks into a semantic, blog-first Article AST.
 ## Why
 Notion is a great editor but a poor blog focused frontend. This project converts Notion content into a stable, renderer-agnostic AST that can be rendered with React, exported to MDX, etc.
 
+## Packages
+
+This repository is a pnpm workspace with the following packages:
+
+- `packages/compiler` — the Notion AST compiler package (published as `notion-ast-compiler`).
+- `packages/react` — a placeholder React package scaffold for future renderer integrations.
+
 ## Usage
 ```ts
 import { compileBlocksToArticle } from "notion-ast-compiler";
