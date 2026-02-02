@@ -17,3 +17,8 @@ export type NotionBlock = {
   has_children: boolean;
   [key: string]: any;
 };
+
+export type NotionPage = {
+  id: string;
+  properties: Record<string, any>;
+};

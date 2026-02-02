@@ -5,6 +5,7 @@ export type ArticleMeta = {
   slug?: string;
   date?: string; // ISO
   tags?: string[];
+  canonicalUrl?: string;
 };
 
 export type Article = {
@@ -18,6 +19,9 @@ export type ArticleNode =
   | ParagraphNode
   | CodeNode
   | ImageNode
+  | TableNode
+  | EmbedNode
+  | BookmarkNode
   | ListNode
   | AdmonitionNode
   | QuoteNode
@@ -48,6 +52,29 @@ export type ImageNode = {
   src: string;
   alt?: string;
   caption?: RichTextSpan[];
+};
+
+export type TableRow = {
+  cells: RichTextSpan[][];
+};
+
+export type TableNode = {
+  type: "table";
+  hasHeader: boolean;
+  rows: TableRow[];
+};
+
+export type EmbedNode = {
+  type: "embed";
+  url: string;
+  caption?: RichTextSpan[];
+};
+
+export type BookmarkNode = {
+  type: "bookmark";
+  url: string;
+  title?: string;
+  description?: string;
 };
 
 export type ListItem = {

@@ -1,0 +1,25 @@
+{
+  "id": "page-3",
+  "properties": {
+    "title": {
+      "type": "title",
+      "title": []
+    },
+    "slug": {
+      "type": "formula",
+      "formula": { "type": "number", "number": 10 }
+    },
+    "date": {
+      "type": "date",
+      "date": {}
+    },
+    "tags": {
+      "type": "rich_text",
+      "rich_text": []
+    },
+    "canonicalUrl": {
+      "type": "url",
+      "url": ""
+    }
+  }
+}

@@ -80,6 +80,25 @@ function validateNode(node: ArticleNode): void {
       expect(node.src.length).toBeGreaterThan(0);
       if (node.caption) validateRichText(node.caption);
       break;
+    case "table":
+      expect(typeof node.hasHeader).toBe("boolean");
+      expect(Array.isArray(node.rows)).toBe(true);
+      for (const row of node.rows) {
+        expect(Array.isArray(row.cells)).toBe(true);
+        for (const cell of row.cells) validateRichText(cell);
+      }
+      break;
+    case "embed":
+      expect(typeof node.url).toBe("string");
+      expect(node.url.length).toBeGreaterThan(0);
+      if (node.caption) validateRichText(node.caption);
+      break;
+    case "bookmark":
+      expect(typeof node.url).toBe("string");
+      expect(node.url.length).toBeGreaterThan(0);
+      if (node.title) expect(typeof node.title).toBe("string");
+      if (node.description) expect(typeof node.description).toBe("string");
+      break;
     case "list":
       expect(typeof node.ordered).toBe("boolean");
       expect(Array.isArray(node.items)).toBe(true);

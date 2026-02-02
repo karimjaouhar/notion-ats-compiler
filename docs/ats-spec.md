@@ -8,7 +8,7 @@
 
 ## Root
 Article:
-- meta: title?, slug?, date?, tags?
+- meta: title?, slug?, date?, tags?, canonicalUrl?
 - body: Node[]
 
 ## Text Model
@@ -20,6 +20,9 @@ Spans can nest (bold contains children).
 - paragraph(text)
 - code(language, code, caption?)
 - image(src, alt?, caption?)
+- table(hasHeader, rows[])
+- embed(url, caption?)
+- bookmark(url, title?, description?)
 - list(ordered, items[])
 - admonition(kind: note|tip|warning|info, title?, children[])
 - quote(children[])

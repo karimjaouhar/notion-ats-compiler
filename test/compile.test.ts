@@ -4,6 +4,7 @@ import simpleFixture from "./fixtures/simple-page.json";
 import leafFixture from "./fixtures/leaf-blocks.json";
 import listFixture from "./fixtures/list-blocks.json";
 import toggleFixture from "./fixtures/toggle-callout.json";
+import tebFixture from "./fixtures/table-embed-bookmark.json";
 
 describe("compileBlocksToArticle", () => {
   it("compiles headings, paragraphs, and rich text spans", () => {
@@ -190,5 +191,55 @@ describe("compileBlocksToArticle", () => {
     ]);
 
     expect(warnings).toEqual(["EMPTY_TOGGLE", "UNSUPPORTED_BLOCK"]);
+  });
+
+  it("compiles tables, embeds, and bookmarks", () => {
+    const warnings: string[] = [];
+    const article = compileBlocksToArticle(tebFixture as any, {
+      onWarning: (warning) => warnings.push(warning.code)
+    });
+
+    expect(article.body).toEqual([
+      {
+        type: "table",
+        hasHeader: true,
+        rows: [
+          {
+            cells: [
+              [{ type: "text", text: "H1" }],
+              [{ type: "text", text: "H2" }]
+            ]
+          },
+          {
+            cells: [
+              [{ type: "text", text: "R1C1" }],
+              [{ type: "text", text: "R1C2" }]
+            ]
+          }
+        ]
+      },
+      {
+        type: "table",
+        hasHeader: false,
+        rows: [
+          {
+            cells: [[{ type: "text", text: "Only" }]]
+          }
+        ]
+      },
+      {
+        type: "embed",
+        url: "https://example.com/embed",
+        caption: [{ type: "text", text: "Embed caption" }]
+      },
+      {
+        type: "bookmark",
+        url: "https://example.com",
+        title: "Example Title",
+        description: "Example Description"
+      }
+    ]);
+
+    expect(warnings).toEqual(["MISSING_EMBED_URL", "MISSING_BOOKMARK_URL"]);
   });
 });

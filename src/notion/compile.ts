@@ -5,6 +5,10 @@ import type {
   DividerNode,
   HeadingNode,
   ImageNode,
+  TableNode,
+  TableRow,
+  EmbedNode,
+  BookmarkNode,
   ListItem,
   ListNode,
   ParagraphNode,
@@ -137,6 +141,87 @@ function compileBlocks(
       continue;
     }
 
+    if (b.type === "table") {
+      const rows: TableRow[] = [];
+      const children = getChildren(b);
+      for (const child of children) {
+        if (child.type !== "table_row") {
+          onWarning?.({
+            code: "UNSUPPORTED_TABLE_STRUCTURE",
+            message: "Table child is not a table_row and was ignored.",
+            blockId: child.id,
+            blockType: child.type
+          });
+          continue;
+        }
+        const rowCells = getTableRowCells(child);
+        if (!rowCells) {
+          onWarning?.({
+            code: "UNSUPPORTED_TABLE_STRUCTURE",
+            message: "Table row is missing cells and was ignored.",
+            blockId: child.id,
+            blockType: child.type
+          });
+          continue;
+        }
+        const cells = rowCells.map((cell) => notionRichTextToSpans(cell));
+        const isEmpty = cells.every((cell) => toPlainText(cell).trim().length === 0);
+        if (isEmpty) continue;
+        rows.push({ cells });
+      }
+      const node: TableNode = {
+        type: "table",
+        hasHeader: Boolean(b.table?.has_column_header),
+        rows
+      };
+      body.push(node);
+      continue;
+    }
+
+    if (b.type === "embed") {
+      const url = b.embed?.url;
+      if (!url) {
+        onWarning?.({
+          code: "MISSING_EMBED_URL",
+          message: "Embed block is missing a URL and was dropped.",
+          blockId: b.id,
+          blockType: b.type
+        });
+        continue;
+      }
+      const caption = getOptionalCaption(b.embed?.caption);
+      const node: EmbedNode = {
+        type: "embed",
+        url,
+        ...(caption ? { caption } : {})
+      };
+      body.push(node);
+      continue;
+    }
+
+    if (b.type === "bookmark") {
+      const url = b.bookmark?.url;
+      if (!url) {
+        onWarning?.({
+          code: "MISSING_BOOKMARK_URL",
+          message: "Bookmark block is missing a URL and was dropped.",
+          blockId: b.id,
+          blockType: b.type
+        });
+        continue;
+      }
+      const title = typeof b.bookmark?.title === "string" ? b.bookmark.title : undefined;
+      const description = typeof b.bookmark?.description === "string" ? b.bookmark.description : undefined;
+      const node: BookmarkNode = {
+        type: "bookmark",
+        url,
+        ...(title ? { title } : {}),
+        ...(description ? { description } : {})
+      };
+      body.push(node);
+      continue;
+    }
+
     if (b.type === "quote") {
       const text = notionRichTextToSpans(getRichText(b, "quote"));
       const plain = toPlainText(text).trim();
@@ -216,6 +301,14 @@ function getChildren(block: NotionBlock): NotionBlock[] {
 
 function isListItemType(type: string): type is "bulleted_list_item" | "numbered_list_item" {
   return type === "bulleted_list_item" || type === "numbered_list_item";
+}
+
+function getTableRowCells(block: NotionBlock): NotionRichText[][] | undefined {
+  const value = block?.[block.type];
+  const cells = value?.cells;
+  if (!Array.isArray(cells)) return undefined;
+  if (!cells.every((cell: unknown) => Array.isArray(cell))) return undefined;
+  return cells as NotionRichText[][];
 }
 
 function mapCalloutKind(color: string | undefined): AdmonitionNode["kind"] {
