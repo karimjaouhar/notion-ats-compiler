@@ -1,5 +1,14 @@
-import type { Article, ArticleNode, HeadingNode, ParagraphNode } from "../ast/types.js";
-import { toPlainText } from "../ast/text.js";
+import type {
+  Article,
+  ArticleNode,
+  CodeNode,
+  DividerNode,
+  HeadingNode,
+  ImageNode,
+  ParagraphNode,
+  QuoteNode
+} from "../ast/types.js";
+import { toPlainText, type RichTextSpan } from "../ast/text.js";
 import { slugify } from "../utils/ids.js";
 import { createUniqueIdFn } from "../utils/unique-ids.js";
 import type { NotionBlock, NotionRichText } from "./types.js";
@@ -10,8 +19,17 @@ export type CompileOptions = {
 };
 
 export function compileBlocksToArticle(blocks: NotionBlock[], opts: CompileOptions = {}): Article {
-  const body: ArticleNode[] = [];
   const nextHeadingId = createUniqueIdFn();
+
+  return {
+    type: "article",
+    meta: opts.meta ?? {},
+    body: compileBlocks(blocks, nextHeadingId)
+  };
+}
+
+function compileBlocks(blocks: NotionBlock[], nextHeadingId: (base: string) => string): ArticleNode[] {
+  const body: ArticleNode[] = [];
 
   for (const b of blocks) {
     if (b.type === "heading_1" || b.type === "heading_2" || b.type === "heading_3") {
@@ -38,19 +56,78 @@ export function compileBlocksToArticle(blocks: NotionBlock[], opts: CompileOptio
       continue;
     }
 
+    if (b.type === "code") {
+      const text = notionRichTextToSpans(getRichText(b, "code"));
+      const codeText = toPlainText(text);
+      // Notion always provides a language; default to "plain" for stability.
+      const language = b.code?.language ?? "plain";
+      const caption = getOptionalCaption(b.code?.caption);
+      const node: CodeNode = {
+        type: "code",
+        language,
+        code: codeText,
+        ...(caption ? { caption } : {})
+      };
+      body.push(node);
+      continue;
+    }
+
+    if (b.type === "image") {
+      const image = b.image;
+      const src =
+        image?.type === "file" ? image.file?.url : image?.type === "external" ? image.external?.url : undefined;
+      if (!src) continue;
+      const caption = getOptionalCaption(image?.caption);
+      const node: ImageNode = {
+        type: "image",
+        src,
+        ...(caption ? { caption } : {})
+      };
+      body.push(node);
+      continue;
+    }
+
+    if (b.type === "divider") {
+      const node: DividerNode = { type: "divider" };
+      body.push(node);
+      continue;
+    }
+
+    if (b.type === "quote") {
+      const text = notionRichTextToSpans(getRichText(b, "quote"));
+      const plain = toPlainText(text).trim();
+      const children: ArticleNode[] = [];
+      if (plain.length > 0) {
+        children.push({ type: "paragraph", text });
+      }
+      const nested = compileBlocks(getChildren(b), nextHeadingId);
+      children.push(...nested);
+      if (children.length === 0) continue;
+      const node: QuoteNode = { type: "quote", children };
+      body.push(node);
+      continue;
+    }
+
     // v0: ignore unknown blocks.
     void b;
   }
 
-  return {
-    type: "article",
-    meta: opts.meta ?? {},
-    body
-  };
+  return body;
 }
 
 function getRichText(block: NotionBlock, key: string): NotionRichText[] {
   const value = block?.[key];
   if (!value || !Array.isArray(value.rich_text)) return [];
   return value.rich_text as NotionRichText[];
+}
+
+function getOptionalCaption(caption: NotionRichText[] | undefined): RichTextSpan[] | undefined {
+  if (!caption || caption.length === 0) return undefined;
+  const spans = notionRichTextToSpans(caption);
+  return toPlainText(spans).trim().length > 0 ? spans : undefined;
+}
+
+function getChildren(block: NotionBlock): NotionBlock[] {
+  if (!Array.isArray(block.children)) return [];
+  return block.children as NotionBlock[];
 }
