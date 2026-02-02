@@ -6,7 +6,9 @@ settings:
 
 importers:
 
-  .:
+  .: {}
+
+  packages/compiler:
     dependencies:
       '@notionhq/client':
         specifier: ^2.2.15
@@ -36,6 +38,12 @@ importers:
       vitest:
         specifier: ^2.0.5
         version: 2.1.9(@types/node@20.19.30)
+
+  packages/react:
+    devDependencies:
+      typescript:
+        specifier: ^5.5.4
+        version: 5.9.3
 
 packages:
 
