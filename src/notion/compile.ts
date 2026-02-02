@@ -46,14 +46,16 @@ function compileBlocks(
   const body: ArticleNode[] = [];
 
   for (let i = 0; i < blocks.length; i += 1) {
-    const b = blocks[i];
+    const b = getBlockAt(blocks, i);
+    if (!b) break;
 
     if (isListItemType(b.type)) {
       const ordered = b.type === "numbered_list_item";
       const items: ListItem[] = [];
 
-      while (i < blocks.length && blocks[i].type === b.type) {
-        const itemBlock = blocks[i];
+      while (true) {
+        const itemBlock = getBlockAt(blocks, i);
+        if (!itemBlock || itemBlock.type !== b.type) break;
         const itemChildren: ArticleNode[] = [];
         const text = notionRichTextToSpans(getRichText(itemBlock, itemBlock.type));
         const plain = toPlainText(text).trim();
@@ -297,6 +299,11 @@ function getOptionalCaption(caption: NotionRichText[] | undefined): RichTextSpan
 function getChildren(block: NotionBlock): NotionBlock[] {
   if (!Array.isArray(block.children)) return [];
   return block.children as NotionBlock[];
+}
+
+function getBlockAt(blocks: NotionBlock[], index: number): NotionBlock | undefined {
+  if (index < 0 || index >= blocks.length) return undefined;
+  return blocks[index];
 }
 
 function isListItemType(type: string): type is "bulleted_list_item" | "numbered_list_item" {
