@@ -5,6 +5,8 @@ import type {
   DividerNode,
   HeadingNode,
   ImageNode,
+  ListItem,
+  ListNode,
   ParagraphNode,
   QuoteNode
 } from "../ast/types.js";
@@ -31,7 +33,33 @@ export function compileBlocksToArticle(blocks: NotionBlock[], opts: CompileOptio
 function compileBlocks(blocks: NotionBlock[], nextHeadingId: (base: string) => string): ArticleNode[] {
   const body: ArticleNode[] = [];
 
-  for (const b of blocks) {
+  for (let i = 0; i < blocks.length; i += 1) {
+    const b = blocks[i];
+
+    if (isListItemType(b.type)) {
+      const ordered = b.type === "numbered_list_item";
+      const items: ListItem[] = [];
+
+      while (i < blocks.length && blocks[i].type === b.type) {
+        const itemBlock = blocks[i];
+        const itemChildren: ArticleNode[] = [];
+        const text = notionRichTextToSpans(getRichText(itemBlock, itemBlock.type));
+        const plain = toPlainText(text).trim();
+        if (plain.length > 0) {
+          itemChildren.push({ type: "paragraph", text });
+        }
+        const nested = compileBlocks(getChildren(itemBlock), nextHeadingId);
+        itemChildren.push(...nested);
+        items.push({ children: itemChildren });
+        i += 1;
+      }
+
+      const node: ListNode = { type: "list", ordered, items };
+      body.push(node);
+      i -= 1;
+      continue;
+    }
+
     if (b.type === "heading_1" || b.type === "heading_2" || b.type === "heading_3") {
       const level = b.type === "heading_1" ? 1 : b.type === "heading_2" ? 2 : 3;
       const text = notionRichTextToSpans(getRichText(b, b.type));
@@ -130,4 +158,8 @@ function getOptionalCaption(caption: NotionRichText[] | undefined): RichTextSpan
 function getChildren(block: NotionBlock): NotionBlock[] {
   if (!Array.isArray(block.children)) return [];
   return block.children as NotionBlock[];
+}
+
+function isListItemType(type: string): type is "bulleted_list_item" | "numbered_list_item" {
+  return type === "bulleted_list_item" || type === "numbered_list_item";
 }

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { compileBlocksToArticle } from "../src/notion/compile.js";
 import simpleFixture from "./fixtures/simple-page.json";
 import leafFixture from "./fixtures/leaf-blocks.json";
+import listFixture from "./fixtures/list-blocks.json";
 
 describe("compileBlocksToArticle", () => {
   it("compiles headings, paragraphs, and rich text spans", () => {
@@ -70,6 +71,71 @@ describe("compileBlocksToArticle", () => {
           {
             type: "paragraph",
             text: [{ type: "text", text: "Nested paragraph" }]
+          }
+        ]
+      }
+    ]);
+  });
+
+  it("groups list items and supports nesting", () => {
+    const article = compileBlocksToArticle(listFixture as any);
+
+    expect(article.body).toEqual([
+      {
+        type: "list",
+        ordered: false,
+        items: [
+          { children: [{ type: "paragraph", text: [{ type: "text", text: "Bullet 1" }] }] },
+          { children: [{ type: "paragraph", text: [{ type: "text", text: "Bullet 2" }] }] },
+          { children: [{ type: "paragraph", text: [{ type: "text", text: "Bullet 3" }] }] }
+        ]
+      },
+      {
+        type: "paragraph",
+        text: [{ type: "text", text: "Break" }]
+      },
+      {
+        type: "list",
+        ordered: true,
+        items: [
+          { children: [{ type: "paragraph", text: [{ type: "text", text: "One" }] }] },
+          { children: [{ type: "paragraph", text: [{ type: "text", text: "Two" }] }] },
+          { children: [{ type: "paragraph", text: [{ type: "text", text: "Three" }] }] }
+        ]
+      },
+      {
+        type: "paragraph",
+        text: [{ type: "text", text: "Mix" }]
+      },
+      {
+        type: "list",
+        ordered: false,
+        items: [
+          {
+            children: [
+              { type: "paragraph", text: [{ type: "text", text: "Parent bullet" }] },
+              {
+                type: "list",
+                ordered: false,
+                items: [
+                  { children: [{ type: "paragraph", text: [{ type: "text", text: "Nested A" }] }] },
+                  { children: [{ type: "paragraph", text: [{ type: "text", text: "Nested B" }] }] }
+                ]
+              }
+            ]
+          },
+          {
+            children: [
+              { type: "paragraph", text: [{ type: "text", text: "Parent bullet 2" }] },
+              {
+                type: "list",
+                ordered: true,
+                items: [
+                  { children: [{ type: "paragraph", text: [{ type: "text", text: "Nested 1" }] }] },
+                  { children: [{ type: "paragraph", text: [{ type: "text", text: "Nested 2" }] }] }
+                ]
+              }
+            ]
           }
         ]
       }
