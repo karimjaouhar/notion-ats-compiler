@@ -1,5 +1,5 @@
 {
-  "name": "@notion-ast/react",
+  "name": "@notion-ats/react",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -15,12 +15,25 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "test": "echo 'No tests specified'",
+    "build": "tsup",
+    "test": "vitest run --pool=threads",
     "lint": "eslint . || echo \"No lint specified\"",
     "check": "pnpm lint && pnpm test && pnpm build"
   },
   "devDependencies": {
-    "typescript": "^5.5.4"
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tsup": "^8.2.4",
+    "typescript": "^5.5.4",
+    "vitest": "^2.0.5"
+  },
+  "dependencies": {
+    "@notion-ats/compiler": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
   }
 }

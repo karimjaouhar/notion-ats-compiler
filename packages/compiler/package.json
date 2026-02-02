@@ -1,5 +1,5 @@
 {
-  "name": "notion-ast-compiler",
+  "name": "@notion-ats/compiler",
   "version": "0.0.1",
   "private": false,
   "type": "module",
