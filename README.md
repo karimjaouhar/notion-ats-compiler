@@ -1,51 +1,157 @@
-# notion-ast-compiler
+# notion-ats
 
-Compile Notion page blocks into a semantic, blog-first Article AST.
+Semantic Article AST from Notion, plus a renderer-agnostic React renderer.
 
-## Why
-Notion is a great editor but a poor blog focused frontend. This project converts Notion content into a stable, renderer-agnostic AST that can be rendered with React, exported to MDX, etc.
+## Article AST (high level)
 
-## Packages
+The compiler produces an `Article`:
 
-This repository is a pnpm workspace with the following packages:
-
-- `packages/compiler` — the Notion AST compiler package (published as `notion-ast-compiler`).
-- `packages/react` — a placeholder React package scaffold for future renderer integrations.
-
-## Usage
 ```ts
-import { compileBlocksToArticle } from "notion-ast-compiler";
-
-const article = compileBlocksToArticle(blocks, { meta: { title: "My Post" } });
+type Article = {
+  type: "article";
+  meta: ArticleMeta;
+  body: ArticleNode[];
+};
 ```
 
-## Public API
+`ArticleNode` represents semantic content such as:
 
-The only supported public contract is what is exported from `src/index.ts`.
+- headings
+- paragraphs
+- lists
+- code blocks
+- images
+- quotes
+- admonitions
+- tables
+- embeds / bookmarks
+- toggles
+
+The AST is:
+
+- deterministic
+- renderer-agnostic
+- versioned with strict compatibility rules
+
+## Usage
+
+### Compile a Notion page
+
+```ts
+import { compileNotionPage } from "@notion-ats/compiler";
+
+const article = compileNotionPage({
+  page,
+  blocks,
+  onWarning: console.warn
+});
+```
+
+### Render with React
+
+```tsx
+import { ArticleRenderer } from "@notion-ats/react";
+
+export default function Post({ article }) {
+  return <ArticleRenderer article={article} />;
+}
+```
+
+### Customize rendering
+
+```tsx
+<ArticleRenderer
+  article={article}
+  components={{
+    heading: ({ level, id, children }) => (
+      <MyHeading as={`h${level}`} id={id}>
+        {children}
+      </MyHeading>
+    ),
+    code: ({ language, code }) => <MyCodeBlock lang={language} code={code} />
+  }}
+/>;
+```
+
+This is how you integrate:
+
+- Tailwind / shadcn / MUI / Chakra
+- Next.js `Link` and `Image`
+- custom design systems
+
+without forking the renderer.
+
+## Public API guarantees
+
+### Compiler (`@notion-ats/compiler`)
 
 Primary (recommended):
+
 - `compileNotionPage`
 
 Advanced (power users):
+
 - `compileBlocksToArticle`
 - `compilePageMeta`
 
-Public domain types:
-- `Article`, `ArticleNode`, `ArticleMeta`
+Public types (stable contract):
 
-Safe helpers:
+- `Article`
+- `ArticleNode`
+- `ArticleMeta`
+- `RichTextSpan`
+
+Helpers:
+
 - `toPlainText`
+
+Only what is exported from `packages/compiler/src/index.ts` is public API.
+
+### React renderer (`@notion-ats/react`)
+
+Public exports:
+
+- `ArticleRenderer`
+- `renderArticle`
+- `renderNode`
+- `renderNodes`
+- `renderRichText`
+- renderer types (`RenderOptions`, `RendererComponents`, etc.)
+
+No Notion imports. No deep compiler imports.
 
 ## Versioning rules (v1+)
 
 Breaking changes (major):
-- Any change to the shape or semantics of `Article`, `ArticleNode`, or `ArticleMeta`.
-- Any change to required fields or invariants in the AST spec.
-- Any change to output for supported block types for the same input.
-- Adding new node types or required fields.
-- Removing/renaming public exports.
 
-Non-breaking changes (minor/patch):
-- Bug fixes that preserve AST invariants and public API shape.
-- Adding optional fields that do not change existing output for the same input.
-- Documentation and test-only changes.
+- Any change to the shape or semantics of `Article`, `ArticleNode`, `ArticleMeta`
+- Any change that alters rendered output for the same AST
+- Adding or removing AST node types
+- Removing or renaming public exports
+
+Non-breaking changes (minor / patch):
+
+- Bug fixes that preserve AST invariants
+- Adding optional fields
+- Adding new renderer helpers without changing defaults
+- Documentation, tests, examples
+
+## Examples
+
+- `examples/next-blog`: Next.js app demonstrating live Notion fetch, React rendering,
+  and on-demand revalidation (webhook style).
+
+## Status
+
+- Compiler: stable and well-tested
+- React renderer: v0.2 complete (semantic rendering + overrides)
+- Examples / CLI: in progress
+
+## What's next
+
+Planned milestones include:
+
+- More example apps (ISR + cache-backed)
+- MDX / HTML exporters
+- CLI tooling (snapshot + compile)
+- Theme packs and renderer adapters

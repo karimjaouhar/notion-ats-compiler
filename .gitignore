@@ -3,5 +3,8 @@ dist
 .vscode
 .DS_Store
 .env
+.env.local
+.next
+examples/**/.next
 # Local development playground
 playground.ts
