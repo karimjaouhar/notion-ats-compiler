@@ -42,7 +42,19 @@ export default async function PostPage({ params }: PageProps) {
 
     return (
       <main>
+        {article.meta.coverUrl ? (
+          <div className="post-hero">
+            <img src={article.meta.coverUrl} alt="" />
+          </div>
+        ) : null}
         {article.meta.title ? <h1>{article.meta.title}</h1> : null}
+        {article.meta.summary ? <p className="post-summary">{article.meta.summary}</p> : null}
+        {(article.meta.date || article.meta.author) ? (
+          <div className="post-meta">
+            {article.meta.date ? <time dateTime={article.meta.date}>{article.meta.date}</time> : null}
+            {article.meta.author ? <span>{article.meta.author}</span> : null}
+          </div>
+        ) : null}
         <ArticleRenderer article={article} components={nextComponents} />
         {warnings.length > 0 ? (
           <aside>

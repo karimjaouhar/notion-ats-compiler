@@ -93,3 +93,60 @@ article td {
 a {
   color: #1d4ed8;
 }
+
+.post-grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  margin-top: 24px;
+}
+
+.post-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  background: #fff;
+}
+
+.post-card h2 {
+  margin: 0 0 8px;
+  font-size: 1.1rem;
+}
+
+.post-meta {
+  display: flex;
+  gap: 12px;
+  font-size: 0.9rem;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+
+.post-cover {
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.post-cover img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.post-hero {
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 24px 0;
+}
+
+.post-hero img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.post-summary {
+  font-size: 1.05rem;
+  color: #334155;
+  margin-bottom: 12px;
+}

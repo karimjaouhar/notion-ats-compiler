@@ -6,6 +6,9 @@ export type ArticleMeta = {
   date?: string; // ISO
   tags?: string[];
   canonicalUrl?: string;
+  summary?: string;
+  author?: string;
+  coverUrl?: string;
 };
 
 export type Article = {

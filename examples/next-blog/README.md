@@ -10,6 +10,7 @@ Create a `.env.local` file in `examples/next-blog` with:
 ```
 NOTION_TOKEN=secret_xxx
 NOTION_PAGE_ID=your-notion-page-id
+NOTION_DATABASE_ID=your-database-id
 # Optional: used to detect same-origin links for Next <Link />
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 # Required for on-demand revalidation endpoint
@@ -29,6 +30,16 @@ Open:
 ```
 http://localhost:3000/posts/<NOTION_PAGE_ID>
 ```
+
+Posts index (database-driven):
+
+```
+http://localhost:3000/posts
+```
+
+The posts index expects a Notion database with properties:
+`Title`, `Date`, `Summary`, `Author`, `Slug`, `Cover`.
+See `packages/compiler/docs/notion-db-mapping.md` for details.
 
 ## On-demand revalidation (webhook style)
 

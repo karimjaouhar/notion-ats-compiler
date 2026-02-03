@@ -2,6 +2,7 @@
 // Primary API (recommended entry point)
 // ─────────────────────────────────────────────────────────
 export { compileNotionPage } from "./notion/page.js";
+export { compileNotionDatabaseIndex } from "./notion/database.js";
 
 // ─────────────────────────────────────────────────────────
 // Advanced APIs (power users only; not the golden path)
@@ -18,6 +19,7 @@ export type {
   ArticleMeta,
   AdmonitionNode
 } from "./ast/types.js";
+export type { DatabasePropertyMapping, PostListItem } from "./notion/database.js";
 
 // ─────────────────────────────────────────────────────────
 // Text utilities (safe helpers)

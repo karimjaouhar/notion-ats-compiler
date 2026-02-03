@@ -141,6 +141,14 @@ Non-breaking changes (minor / patch):
 - `examples/next-blog`: Next.js app demonstrating live Notion fetch, React rendering,
   and on-demand revalidation (webhook style).
 
+## Notion database mapping
+
+If your content lives in a Notion database, use the helper that maps
+database properties into a normalized blog index item:
+
+- `compileNotionDatabaseIndex` in `@notion-ats/compiler`
+- Property mapping docs: `packages/compiler/docs/notion-db-mapping.md`
+
 ## Status
 
 - Compiler: stable and well-tested

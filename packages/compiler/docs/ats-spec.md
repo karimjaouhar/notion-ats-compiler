@@ -8,7 +8,7 @@
 
 ## Root
 Article:
-- meta: title?, slug?, date?, tags?, canonicalUrl?
+- meta: title?, slug?, date?, tags?, canonicalUrl?, summary?, author?, coverUrl?
 - body: Node[]
 
 ## Text Model
