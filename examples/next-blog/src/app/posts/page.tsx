@@ -33,7 +33,7 @@ export default async function PostsIndexPage() {
       <h1>Blog</h1>
       <div className="post-grid">
         {posts.map((post) => {
-          const href = `/posts/${post.id}`;
+          const href = post.slug ? `/posts/${post.slug}` : `/posts/${post.id}`;
           return (
             <article key={post.id} className="post-card">
               {post.coverUrl ? (
@@ -47,7 +47,6 @@ export default async function PostsIndexPage() {
               <div className="post-meta">
                 {post.date ? <time dateTime={post.date}>{post.date}</time> : null}
                 {post.author ? <span>{post.author}</span> : null}
-                {post.slug ? <span>{post.slug}</span> : null}
               </div>
               {post.summary ? <p>{post.summary}</p> : null}
             </article>

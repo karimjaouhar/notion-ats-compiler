@@ -19,7 +19,9 @@ type KnownPropertyKey =
   | "canonicalUrl"
   | "summary"
   | "author"
-  | "cover";
+  | "cover"
+  | "authorImage"
+  | "readTime";
 
 export function compilePageMeta(
   properties: Record<string, any>,
@@ -82,6 +84,18 @@ export function compilePageMeta(
     if (coverUrl) meta.coverUrl = coverUrl;
   }
 
+  const authorImageProp = getPropertyByNames(properties, ["authorImage", "Author Image"]);
+  if (authorImageProp) {
+    const authorImageUrl = compileAuthorImage(authorImageProp, onWarning);
+    if (authorImageUrl) meta.authorImageUrl = authorImageUrl;
+  }
+
+  const readTimeProp = getPropertyByNames(properties, ["readTime", "Read Time"]);
+  if (readTimeProp) {
+    const readTimeMinutes = compileReadTimeMinutes(readTimeProp, onWarning);
+    if (readTimeMinutes !== undefined) meta.readTimeMinutes = readTimeMinutes;
+  }
+
   warnUnsupportedProperties(properties, onWarning);
 
   return meta;
@@ -96,7 +110,9 @@ function warnUnsupportedProperties(properties: Record<string, any>, onWarning?: 
     "canonicalUrl",
     "summary",
     "author",
-    "cover"
+    "cover",
+    "authorImage",
+    "readTime"
   ]);
   const aliases = new Set<string>([
     "title",
@@ -115,7 +131,11 @@ function warnUnsupportedProperties(properties: Record<string, any>, onWarning?: 
     "author",
     "Author",
     "cover",
-    "Cover"
+    "Cover",
+    "authorImage",
+    "Author Image",
+    "readTime",
+    "Read Time"
   ]);
   for (const key of Object.keys(properties ?? {})) {
     if (known.has(key as KnownPropertyKey) || aliases.has(key)) continue;
@@ -293,6 +313,51 @@ function compileCoverUrl(property: any, onWarning?: MetaWarningHook): string | u
   if (file.type === "external") return file.external?.url;
   if (file.type === "file") return file.file?.url;
   return undefined;
+}
+
+function compileAuthorImage(property: any, onWarning?: MetaWarningHook): string | undefined {
+  if (!property) {
+    onWarning?.({
+      code: "UNSUPPORTED_PROPERTY",
+      message: "Author Image property is missing or unsupported.",
+      blockType: "page"
+    });
+    return undefined;
+  }
+
+  if (property.type === "files" && Array.isArray(property.files)) {
+    const file = property.files[0];
+    if (file?.type === "external") return file.external?.url;
+    if (file?.type === "file") return file.file?.url;
+    return undefined;
+  }
+
+  if (property.type === "url") {
+    const url = typeof property.url === "string" ? property.url.trim() : "";
+    return url.length > 0 ? url : undefined;
+  }
+
+  onWarning?.({
+    code: "UNSUPPORTED_PROPERTY",
+    message: `Author Image property type "${property.type}" is not supported.`,
+    blockType: "page"
+  });
+  return undefined;
+}
+
+function compileReadTimeMinutes(property: any, onWarning?: MetaWarningHook): number | undefined {
+  if (!property || property.type !== "number") {
+    onWarning?.({
+      code: "UNSUPPORTED_PROPERTY",
+      message: "Read Time property is missing or unsupported.",
+      blockType: "page"
+    });
+    return undefined;
+  }
+
+  const value = property.number;
+  if (typeof value !== "number" || Number.isNaN(value) || value <= 0) return undefined;
+  return value;
 }
 
 function getPropertyByNames(properties: Record<string, any> | undefined, names: string[]): any | undefined {

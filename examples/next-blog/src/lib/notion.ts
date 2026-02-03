@@ -9,6 +9,10 @@ export type NotionDatabaseResult = {
   pages: any[];
 };
 
+export type NotionDatabasePageResult = {
+  page: any | null;
+};
+
 const getNotionClient = () => {
   const token = process.env.NOTION_TOKEN;
   if (!token) return null;
@@ -75,4 +79,26 @@ export const fetchDatabasePages = async (databaseId: string): Promise<NotionData
   } while (cursor);
 
   return { pages: results };
+};
+
+export const fetchDatabasePageBySlug = async (
+  databaseId: string,
+  slug: string,
+  slugProperty = "Slug"
+): Promise<NotionDatabasePageResult> => {
+  const notion = getNotionClient();
+  if (!notion) {
+    throw new Error("Missing NOTION_TOKEN.");
+  }
+
+  const response = await notion.databases.query({
+    database_id: databaseId,
+    page_size: 1,
+    filter: {
+      property: slugProperty,
+      rich_text: { equals: slug }
+    }
+  });
+
+  return { page: response.results[0] ?? null };
 };

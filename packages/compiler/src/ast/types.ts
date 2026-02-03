@@ -9,6 +9,8 @@ export type ArticleMeta = {
   summary?: string;
   author?: string;
   coverUrl?: string;
+  authorImageUrl?: string;
+  readTimeMinutes?: number;
 };
 
 export type Article = {

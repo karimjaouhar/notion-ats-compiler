@@ -25,6 +25,19 @@
       "type": "url",
       "url": "https://example.com/post"
     },
+    "Author Image": {
+      "type": "files",
+      "files": [
+        {
+          "type": "external",
+          "external": { "url": "https://example.com/author.png" }
+        }
+      ]
+    },
+    "Read Time": {
+      "type": "number",
+      "number": 8
+    },
     "irrelevant": {
       "type": "number",
       "number": 42

@@ -18,7 +18,9 @@ describe("compilePageMeta", () => {
       slug: "my-slug",
       date: "2025-06-01",
       tags: ["alpha", "beta"],
-      canonicalUrl: "https://example.com/post"
+      canonicalUrl: "https://example.com/post",
+      authorImageUrl: "https://example.com/author.png",
+      readTimeMinutes: 8
     });
 
     expect(warnings).toEqual(["UNSUPPORTED_PROPERTY"]);

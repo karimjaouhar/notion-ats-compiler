@@ -28,7 +28,7 @@ pnpm --filter next-blog dev
 Open:
 
 ```
-http://localhost:3000/posts/<NOTION_PAGE_ID>
+http://localhost:3000/posts/<SLUG-or-PAGE_ID>
 ```
 
 Posts index (database-driven):
@@ -40,6 +40,9 @@ http://localhost:3000/posts
 The posts index expects a Notion database with properties:
 `Title`, `Date`, `Summary`, `Author`, `Slug`, `Cover`.
 See `packages/compiler/docs/notion-db-mapping.md` for details.
+
+Single post view reads optional properties from the page:
+`Author Image` (files or url) and `Read Time` (number, minutes).
 
 ## On-demand revalidation (webhook style)
 
