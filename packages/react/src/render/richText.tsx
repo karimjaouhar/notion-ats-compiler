@@ -1,8 +1,16 @@
 import React from "react";
 import type { RichTextSpan } from "@notion-ats/compiler";
 import type { RenderOptions } from "../types.js";
+import { resolveComponents } from "./components.js";
 
-export function renderRichText(spans: RichTextSpan[], _options?: RenderOptions): React.ReactNode[] {
+const defaultLinkProps = {
+  rel: "noreferrer noopener",
+  target: "_blank"
+};
+
+export function renderRichText(spans: RichTextSpan[], options?: RenderOptions): React.ReactNode[] {
+  const components = resolveComponents(options?.components);
+
   return spans.map((span, index) => {
     const key = `${index}`;
 
@@ -12,14 +20,19 @@ export function renderRichText(spans: RichTextSpan[], _options?: RenderOptions):
       case "code":
         return <code key={key}>{span.text}</code>;
       case "bold":
-        return <strong key={key}>{renderRichText(span.children, _options)}</strong>;
+        return <strong key={key}>{renderRichText(span.children, options)}</strong>;
       case "italic":
-        return <em key={key}>{renderRichText(span.children, _options)}</em>;
+        return <em key={key}>{renderRichText(span.children, options)}</em>;
       case "link":
         return (
-          <a key={key} href={span.href}>
-            {renderRichText(span.children, _options)}
-          </a>
+          <React.Fragment key={key}>
+            {components.link({
+              href: span.href,
+              rel: defaultLinkProps.rel,
+              target: defaultLinkProps.target,
+              children: renderRichText(span.children, options)
+            })}
+          </React.Fragment>
         );
       default:
         return <React.Fragment key={key} />;

@@ -135,6 +135,9 @@ Default render:
 
 Do not add styling by default.
 
+Links created by rich text spans, embeds, and bookmarks include safe defaults:
+`rel="noreferrer noopener"` and `target="_blank"`. Override via components.
+
 ## Custom Components
 
 Users may override rendering per node type via a components map.
@@ -145,6 +148,7 @@ The library must:
 - Call user overrides when provided.
 - Keep override props stable and minimal.
 - Pass children already rendered.
+- Provide a `components.link` override for rich text links.
 
 ## Public API
 
@@ -154,6 +158,7 @@ The library must:
 ### Functional API
 - `renderArticle(article, options?)`
 - `renderNode(node, options?)`
+- `renderNodes(nodes, options?)`
 - `renderRichText(spans, options?)`
 
 ### Types

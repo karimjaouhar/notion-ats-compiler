@@ -65,6 +65,13 @@ export type ToggleComponentProps = {
   children: ReactNode;
 };
 
+export type LinkComponentProps = {
+  href: string;
+  rel?: string;
+  target?: string;
+  children: ReactNode;
+};
+
 export type RendererComponents = {
   heading: (props: HeadingComponentProps) => ReactElement;
   paragraph: (props: ParagraphComponentProps) => ReactElement;
@@ -78,6 +85,7 @@ export type RendererComponents = {
   quote: (props: QuoteComponentProps) => ReactElement;
   divider: (props: DividerComponentProps) => ReactElement;
   toggle: (props: ToggleComponentProps) => ReactElement;
+  link: (props: LinkComponentProps) => ReactElement;
 };
 
 export type RenderRichText = (spans: RichTextSpan[], options?: RenderOptions) => ReactNode[];

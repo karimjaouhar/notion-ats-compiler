@@ -1,16 +1,10 @@
 import React from "react";
 import type { Article } from "@notion-ats/compiler";
-import { renderNode } from "./node.js";
+import { renderNodes } from "./node.js";
 import type { RenderOptions } from "../types.js";
 
 export function renderArticle(article: Article, options?: RenderOptions): React.ReactElement {
-  return (
-    <article>
-      {article.body.map((node, index) => (
-        <React.Fragment key={index}>{renderNode(node, options)}</React.Fragment>
-      ))}
-    </article>
-  );
+  return <article>{renderNodes(article.body, options)}</article>;
 }
 
 export type ArticleRendererProps = {

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import type { Article } from "@notion-ats/compiler";
-import { ArticleRenderer, renderArticle } from "../src/index.js";
+import { ArticleRenderer, renderArticle, renderNodes } from "../src/index.js";
 
 const baseArticle = (body: Article["body"]): Article => ({
   type: "article",
@@ -151,5 +151,172 @@ describe("renderArticle", () => {
     );
 
     expect(html).toContain('<h1 data-level="1" id="custom">Custom</h1>');
+  });
+
+  it("defaults image alt to caption text or empty string", () => {
+    const withCaption = baseArticle([
+      {
+        type: "image",
+        src: "https://example.com/with-caption.png",
+        caption: [{ type: "text", text: "Caption alt" }]
+      }
+    ]);
+    const withoutCaption = baseArticle([
+      {
+        type: "image",
+        src: "https://example.com/without-caption.png"
+      }
+    ]);
+
+    const withCaptionHtml = renderToStaticMarkup(renderArticle(withCaption));
+    const withoutCaptionHtml = renderToStaticMarkup(renderArticle(withoutCaption));
+
+    expect(withCaptionHtml).toContain(
+      '<img src="https://example.com/with-caption.png" alt="Caption alt"/>'
+    );
+    expect(withoutCaptionHtml).toContain(
+      '<img src="https://example.com/without-caption.png" alt=""/>'
+    );
+  });
+
+  it("adds safe defaults for link rel/target", () => {
+    const article = baseArticle([
+      {
+        type: "paragraph",
+        text: [
+          { type: "text", text: "Read " },
+          {
+            type: "link",
+            href: "https://example.com",
+            children: [{ type: "text", text: "Docs" }]
+          }
+        ]
+      },
+      {
+        type: "embed",
+        url: "https://example.com/embed"
+      },
+      {
+        type: "bookmark",
+        url: "https://example.com/bookmark",
+        title: "Bookmark"
+      }
+    ]);
+
+    const html = renderToStaticMarkup(renderArticle(article));
+
+    expect(html).toContain(
+      '<a href="https://example.com" rel="noreferrer noopener" target="_blank">Docs</a>'
+    );
+    expect(html).toContain(
+      '<a href="https://example.com/embed" rel="noreferrer noopener" target="_blank">https://example.com/embed</a>'
+    );
+    expect(html).toContain(
+      '<a href="https://example.com/bookmark" rel="noreferrer noopener" target="_blank">Bookmark</a>'
+    );
+  });
+
+  it("supports link and image overrides", () => {
+    const article = baseArticle([
+      {
+        type: "paragraph",
+        text: [
+          {
+            type: "link",
+            href: "https://example.com",
+            children: [{ type: "text", text: "Link" }]
+          }
+        ]
+      },
+      {
+        type: "image",
+        src: "https://example.com/override.png",
+        caption: [{ type: "text", text: "Override" }]
+      }
+    ]);
+
+    const html = renderToStaticMarkup(
+      <ArticleRenderer
+        article={article}
+        components={{
+          link: ({ href, rel, target, children }) => (
+            <a data-custom="link" href={href} rel={rel} target={target}>
+              {children}
+            </a>
+          ),
+          image: ({ src, alt }) => <img data-custom="image" src={src} alt={alt} />
+        }}
+      />
+    );
+
+    expect(html).toContain(
+      '<a data-custom="link" href="https://example.com" rel="noreferrer noopener" target="_blank">Link</a>'
+    );
+    expect(html).toContain(
+      '<img data-custom="image" src="https://example.com/override.png" alt="Override"/>'
+    );
+  });
+
+  it("renders nodes consistently with renderNodes", () => {
+    const nodes = [
+      {
+        type: "heading",
+        level: 3,
+        id: "nodes",
+        text: [{ type: "text", text: "Nodes" }]
+      },
+      {
+        type: "paragraph",
+        text: [{ type: "text", text: "Rendered" }]
+      }
+    ] satisfies Article["body"];
+
+    const html = renderToStaticMarkup(<article>{renderNodes(nodes)}</article>);
+    expect(html).toBe('<article><h3 id="nodes">Nodes</h3><p>Rendered</p></article>');
+  });
+
+  it("matches golden HTML output", () => {
+    const article = baseArticle([
+      {
+        type: "heading",
+        level: 1,
+        id: "title",
+        text: [{ type: "text", text: "Title" }]
+      },
+      {
+        type: "paragraph",
+        text: [
+          { type: "text", text: "Hello " },
+          { type: "italic", children: [{ type: "text", text: "world" }] }
+        ]
+      },
+      {
+        type: "list",
+        ordered: true,
+        items: [
+          {
+            children: [
+              {
+                type: "paragraph",
+                text: [{ type: "text", text: "One" }]
+              }
+            ]
+          },
+          {
+            children: [
+              {
+                type: "paragraph",
+                text: [{ type: "text", text: "Two" }]
+              }
+            ]
+          }
+        ]
+      }
+    ]);
+
+    const html = renderToStaticMarkup(renderArticle(article));
+    expect(html).toBe(
+      "<article><h1 id=\"title\">Title</h1><p>Hello <em>world</em></p><ol><li><p>One</p></li><li><p>Two</p></li></ol></article>"
+    );
   });
 });

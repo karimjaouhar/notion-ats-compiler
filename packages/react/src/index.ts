@@ -1,6 +1,7 @@
 export { ArticleRenderer } from "./render/article.js";
 export { renderArticle } from "./render/article.js";
 export { renderNode } from "./render/node.js";
+export { renderNodes } from "./render/node.js";
 export { renderRichText } from "./render/richText.js";
 export type {
   AdmonitionComponentProps,
@@ -10,6 +11,7 @@ export type {
   EmbedComponentProps,
   HeadingComponentProps,
   ImageComponentProps,
+  LinkComponentProps,
   ListComponentProps,
   ParagraphComponentProps,
   QuoteComponentProps,
