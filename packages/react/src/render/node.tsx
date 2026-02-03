@@ -58,6 +58,8 @@ export function renderNode(node: ArticleNode, options?: RenderOptions): React.Re
       return components.admonition({
         kind: node.kind,
         title: node.title ? renderRichText(node.title, options) : undefined,
+        tone: node.tone,
+        icon: node.icon,
         children: renderNodes(node.children, options)
       });
     case "quote":

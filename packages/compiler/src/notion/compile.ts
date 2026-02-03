@@ -279,11 +279,15 @@ function compileBlocks(
       const title = notionRichTextToSpans(getRichText(b, "callout"));
       const titlePlain = toPlainText(title).trim();
       const children = compileBlocks(getChildren(b), nextHeadingId, onWarning);
-      const kind = mapCalloutKind(b.callout?.color);
+      const tone = normalizeCalloutTone(b.callout?.color);
+      const kind = mapCalloutKind(tone);
+      const icon = getCalloutEmoji(b.callout?.icon);
       const node: AdmonitionNode = {
         type: "admonition",
         kind,
         ...(titlePlain.length > 0 ? { title } : {}),
+        ...(tone ? { tone } : {}),
+        ...(icon ? { icon } : {}),
         children
       };
       body.push(node);
@@ -352,4 +356,14 @@ function mapCalloutKind(color: string | undefined): AdmonitionNode["kind"] {
     default:
       return "note";
   }
+}
+
+function normalizeCalloutTone(color: unknown): string | undefined {
+  if (typeof color !== "string") return undefined;
+  return color.endsWith("_background") ? color.replace("_background", "") : color;
+}
+
+function getCalloutEmoji(icon: any): string | undefined {
+  if (!icon || icon.type !== "emoji") return undefined;
+  return typeof icon.emoji === "string" && icon.emoji.trim().length > 0 ? icon.emoji : undefined;
 }

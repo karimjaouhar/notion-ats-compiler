@@ -94,6 +94,8 @@ export type AdmonitionNode = {
   type: "admonition";
   kind: "note" | "tip" | "warning" | "info";
   title?: RichTextSpan[];
+  tone?: string;
+  icon?: string;
   children: ArticleNode[];
 };
 

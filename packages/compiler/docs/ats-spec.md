@@ -24,7 +24,7 @@ Spans can nest (bold contains children).
 - embed(url, caption?)
 - bookmark(url, title?, description?)
 - list(ordered, items[])
-- admonition(kind: note|tip|warning|info, title?, children[])
+- admonition(kind: note|tip|warning|info, title?, tone?, icon?, children[])
 - quote(children[])
 - divider
 - toggle(summary, children[])
@@ -54,7 +54,7 @@ These are guaranteed by the compiler and must remain stable.
 - `embed`: `url` is non-empty; `caption` is optional.
 - `bookmark`: `url` is non-empty; `title`/`description` are optional.
 - `list`: `items[].children` is a Node[] and preserves order.
-- `admonition`: `kind` in `note|tip|warning|info`; `title` optional.
+- `admonition`: `kind` in `note|tip|warning|info`; `title`, `tone`, `icon` optional.
 - `quote`: `children` is a Node[] and preserves order.
 - `divider`: no additional fields.
 - `toggle`: `summary` non-empty; `children` preserves order.

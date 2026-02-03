@@ -51,6 +51,8 @@ export type ListComponentProps = {
 export type AdmonitionComponentProps = {
   kind: AdmonitionNode["kind"];
   title?: ReactNode;
+  tone?: string;
+  icon?: string;
   children: ReactNode;
 };
 

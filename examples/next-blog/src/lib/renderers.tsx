@@ -1,6 +1,17 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { RendererComponents } from "@notion-ats/react";
+import Prism from "prismjs";
+import "prismjs/components/prism-bash";
+import "prismjs/components/prism-css";
+import "prismjs/components/prism-javascript";
+import "prismjs/components/prism-json";
+import "prismjs/components/prism-jsx";
+import "prismjs/components/prism-markdown";
+import "prismjs/components/prism-typescript";
+import "prismjs/components/prism-tsx";
+import "prismjs/components/prism-rust";
+import "prismjs/components/prism-python";
 
 const externalLinkDefaults = {
   rel: "noreferrer noopener",
@@ -70,6 +81,24 @@ export const nextComponents: Partial<RendererComponents> = {
         ) : (
           <img src={src} alt={alt} />
         )}
+        {caption ? <figcaption>{caption}</figcaption> : null}
+      </figure>
+    );
+  }
+  ,
+  code: ({ language, code, caption }) => {
+    const lang = (language || "text").toLowerCase();
+    const grammar = Prism.languages[lang] ?? Prism.languages.plain;
+    const highlighted = Prism.highlight(code, grammar, lang);
+
+    return (
+      <figure>
+        <pre>
+          <code
+            className={`language-${lang}`}
+            dangerouslySetInnerHTML={{ __html: highlighted }}
+          />
+        </pre>
         {caption ? <figcaption>{caption}</figcaption> : null}
       </figure>
     );

@@ -166,6 +166,8 @@ describe("compileBlocksToArticle", () => {
       {
         type: "admonition",
         kind: "warning",
+        tone: "yellow",
+        icon: "⚠️",
         title: [{ type: "text", text: "Warning callout" }],
         children: [
           { type: "paragraph", text: [{ type: "text", text: "Pay attention" }] },
@@ -179,12 +181,16 @@ describe("compileBlocksToArticle", () => {
       {
         type: "admonition",
         kind: "info",
+        tone: "blue",
+        icon: "ℹ️",
         title: [{ type: "text", text: "Info callout" }],
         children: []
       },
       {
         type: "admonition",
         kind: "tip",
+        tone: "green",
+        icon: "✅",
         title: [{ type: "text", text: "Tip callout" }],
         children: []
       }

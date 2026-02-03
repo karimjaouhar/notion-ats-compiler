@@ -115,7 +115,9 @@ describe("renderArticle", () => {
       '<figure><img src="https://example.com/image.png" alt="An image"/><figcaption>An image</figcaption></figure>'
     );
     expect(html).toContain("<details><summary>Details</summary><p>Inside</p></details>");
-    expect(html).toContain('<aside data-kind="note"><strong>Remember</strong><p>Take notes.</p></aside>');
+    expect(html).toContain(
+      '<aside data-kind="note"><div><span>Remember</span></div><p>Take notes.</p></aside>'
+    );
     expect(html).toContain(
       "<table><thead><tr><th>H1</th><th>H2</th></tr></thead><tbody><tr><td>A1</td><td>A2</td></tr></tbody></table>"
     );

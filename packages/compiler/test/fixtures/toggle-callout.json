@@ -58,6 +58,7 @@
     "type": "callout",
     "has_children": true,
     "callout": {
+      "icon": { "type": "emoji", "emoji": "⚠️" },
       "color": "yellow",
       "rich_text": [
         { "plain_text": "Warning callout", "href": null, "annotations": { "bold": false, "italic": false, "code": false } }
@@ -91,6 +92,7 @@
     "type": "callout",
     "has_children": false,
     "callout": {
+      "icon": { "type": "emoji", "emoji": "ℹ️" },
       "color": "blue",
       "rich_text": [
         { "plain_text": "Info callout", "href": null, "annotations": { "bold": false, "italic": false, "code": false } }
@@ -102,6 +104,7 @@
     "type": "callout",
     "has_children": false,
     "callout": {
+      "icon": { "type": "emoji", "emoji": "✅" },
       "color": "green",
       "rich_text": [
         { "plain_text": "Tip callout", "href": null, "annotations": { "bold": false, "italic": false, "code": false } }

@@ -89,9 +89,14 @@ export const defaultComponents: RendererComponents = {
       </ListTag>
     );
   },
-  admonition: ({ kind, title, children }: AdmonitionComponentProps) => (
-    <aside data-kind={kind}>
-      {title ? <strong>{title}</strong> : null}
+  admonition: ({ kind, title, tone, icon, children }: AdmonitionComponentProps) => (
+    <aside data-kind={kind} data-tone={tone}>
+      {title || icon ? (
+        <div>
+          {icon ? <span>{icon}</span> : null}
+          {title ? <span>{title}</span> : null}
+        </div>
+      ) : null}
       {children}
     </aside>
   ),

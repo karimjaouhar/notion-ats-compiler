@@ -87,11 +87,11 @@ Default render:
 ```
 
 ### admonition
-AST: `{ type: "admonition", kind, title?, children }`
+AST: `{ type: "admonition", kind, title?, tone?, icon?, children }`
 Default render:
 ```html
-<aside data-kind="{kind}">
-  <strong>...</strong> (optional title)
+<aside data-kind="{kind}" data-tone="{tone}">
+  <div>...</div> (optional title / icon)
   ...children...
 </aside>
 ```
